@@ -1,0 +1,55 @@
+.svg-card {
+  display: inline-block;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: default;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.35));
+  transition: transform 0.12s ease, filter 0.12s ease;
+  vertical-align: bottom;
+}
+
+.svg-card.interactive {
+  cursor: pointer;
+}
+
+.svg-card.interactive:hover {
+  transform: translateY(-6px);
+}
+
+.svg-card.selected {
+  transform: translateY(-16px);
+  filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.45));
+}
+
+.svg-card:disabled {
+  cursor: default;
+}
+
+.hand {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding: 8px 0 4px;
+}
+
+.hand-card-slot {
+  margin-left: -22px;
+}
+
+.hand-card-slot:first-child {
+  margin-left: 0;
+}
+
+.mini-hand {
+  display: flex;
+  align-items: flex-end;
+}
+
+.mini-hand .hand-card-slot {
+  margin-left: -34px;
+}
+
+.mini-hand .hand-card-slot:first-child {
+  margin-left: 0;
+}
