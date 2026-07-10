@@ -1,6 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import {
   DEFAULT_GAME_CONFIG,
+  MAX_PLAYERS,
+  MIN_PLAYERS,
   type ExchangeTransaction,
   type GameConfig,
   type GameStatePayload,
@@ -113,7 +115,7 @@ export class Room {
   }
 
   canStart(): boolean {
-    return this.phase === 'lobby' && this.players.size >= 4 && this.players.size <= 8;
+    return this.phase === 'lobby' && this.players.size >= MIN_PLAYERS && this.players.size <= MAX_PLAYERS;
   }
 
   startGame(): void {

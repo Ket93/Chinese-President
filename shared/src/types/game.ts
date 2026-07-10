@@ -3,6 +3,8 @@ import type { ExchangeState } from './exchange.js';
 
 export type RoundPhase = 'dealing' | 'exchange' | 'trickTaking' | 'roundEnd';
 
+export type TrickEndReason = 'allPassed' | 'noOneCanBeat' | 'eightEndsRound';
+
 export interface TrickLogEntry {
   playerId: string;
   action: Combo | 'pass';
@@ -27,6 +29,10 @@ export interface RoundState {
   exchange?: ExchangeState;
   /** True only before the very first play of round 1 — that opening play must include the 3 of clubs. */
   openingPlayRequiresThreeClubs: boolean;
+  /** Completed tricks this round, most recent first. */
+  trickHistory: TrickLogEntry[][];
+  /** Set whenever a trick resolves; lets clients show why (everyone passed vs. nothing could beat it). */
+  lastTrickResolution: { winnerId: string; reason: TrickEndReason } | null;
 }
 
 export interface SessionStats {

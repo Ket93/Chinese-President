@@ -1,10 +1,13 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { isValidPlay, type ValidationFailureReason } from '@chinese-president/shared';
 import { Hand } from '../components/card/Hand.js';
+import { BigMessageOverlay } from '../components/table/BigMessageOverlay.js';
+import { DeckPile } from '../components/table/DeckPile.js';
 import { PlayAnimationOverlay } from '../components/table/PlayAnimationOverlay.js';
 import { PlayerSeat } from '../components/table/PlayerSeat.js';
 import { RankLegend } from '../components/table/RankLegend.js';
 import { TableCombo } from '../components/table/TableCombo.js';
+import { TrickHistoryModal } from '../components/table/TrickHistoryModal.js';
 import { useSelection } from '../hooks/useSelection.js';
 import { socket } from '../socket.js';
 import { useGameState } from '../state/GameContext.js';
@@ -20,6 +23,7 @@ const REASON_TEXT: Record<ValidationFailureReason, string> = {
 export function TableScreen() {
   const { gameState, roomState, playerId } = useGameState();
   const { selected, toggle, clear } = useSelection();
+  const [showHistory, setShowHistory] = useState(false);
 
   const myIndex = gameState ? gameState.players.findIndex((p) => p.id === playerId) : -1;
   const n = gameState?.players.length ?? 0;
@@ -86,6 +90,12 @@ export function TableScreen() {
           seatPositions={seatPositions}
         />
       </div>
+
+      <DeckPile trickCount={round.trickHistory.length} onClick={() => setShowHistory(true)} />
+      {showHistory && (
+        <TrickHistoryModal trickHistory={round.trickHistory} players={players} onClose={() => setShowHistory(false)} />
+      )}
+      <BigMessageOverlay round={round} players={players} myPlayerId={playerId} />
 
       <div className="hand-area">
         <div className={`hand-status${isMyTurn ? ' my-turn' : ''}`}>

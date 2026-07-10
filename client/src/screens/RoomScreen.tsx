@@ -1,4 +1,4 @@
-import type { GameConfig, ThreeClubsTiebreak } from '@chinese-president/shared';
+import { MAX_PLAYERS, MIN_PLAYERS, type GameConfig, type ThreeClubsTiebreak } from '@chinese-president/shared';
 import { RoomCodeBadge } from '../components/common/RoomCodeBadge.js';
 import { socket } from '../socket.js';
 import { useGameState } from '../state/GameContext.js';
@@ -9,7 +9,7 @@ export function RoomScreen() {
 
   const isHost = roomState.hostId === playerId;
   const config = roomState.config;
-  const canStart = roomState.players.length >= 4 && roomState.players.length <= 8;
+  const canStart = roomState.players.length >= MIN_PLAYERS && roomState.players.length <= MAX_PLAYERS;
 
   function updateConfig(partial: Partial<GameConfig>) {
     socket.emit('room:updateConfig', { config: partial });
@@ -24,7 +24,7 @@ export function RoomScreen() {
         <RoomCodeBadge code={roomState.roomCode} />
 
         <h2>
-          Players ({roomState.players.length}/8)
+          Players ({roomState.players.length}/{MAX_PLAYERS})
         </h2>
         <ul className="player-list">
           {roomState.players.map((p) => (
@@ -45,7 +45,7 @@ export function RoomScreen() {
 
         {isHost && (
           <div className="host-controls">
-            <button className="btn secondary add-bot-btn" type="button" disabled={roomState.players.length >= 8} onClick={() => socket.emit('room:addBot')}>
+            <button className="btn secondary add-bot-btn" type="button" disabled={roomState.players.length >= MAX_PLAYERS} onClick={() => socket.emit('room:addBot')}>
               + Add Bot
             </button>
           </div>
@@ -119,7 +119,7 @@ export function RoomScreen() {
 
         {isHost && (
           <button className="btn" type="button" disabled={!canStart} onClick={() => socket.emit('room:startGame')}>
-            {canStart ? 'Start Game' : `Need ${Math.max(0, 4 - roomState.players.length)} more player(s)`}
+            {canStart ? 'Start Game' : `Need ${Math.max(0, MIN_PLAYERS - roomState.players.length)} more player(s)`}
           </button>
         )}
 

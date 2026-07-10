@@ -419,6 +419,24 @@
   color: var(--ink-dim);
 }
 
+.exchange-outcome {
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+}
+
+.exchange-outcome-success {
+  background: rgba(76, 175, 130, 0.15);
+  color: var(--success);
+}
+
+.exchange-outcome-fail {
+  background: rgba(226, 83, 74, 0.15);
+  color: #ff9d95;
+}
+
 .rank-picker {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -462,6 +480,166 @@
   justify-content: center;
   flex-wrap: wrap;
   margin-top: 14px;
+}
+
+/* Deck pile / trick history */
+
+.deck-pile {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 25;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+.deck-pile:hover {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.deck-pile-stack {
+  pointer-events: none;
+}
+
+.deck-pile-label {
+  font-size: 11px;
+  color: var(--ink-dim);
+  white-space: nowrap;
+}
+
+.history-modal {
+  width: 480px;
+  max-width: 90vw;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.history-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.history-modal-header h3 {
+  margin: 0;
+  color: var(--accent-strong);
+}
+
+.history-list {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.history-trick {
+  border-top: 1px solid var(--panel-border);
+  padding-top: 10px;
+}
+
+.history-trick-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent-strong);
+  margin-bottom: 6px;
+}
+
+.history-play-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.history-play-name {
+  font-size: 12px;
+  color: var(--ink-dim);
+  min-width: 70px;
+}
+
+/* Big trick-end / player-out messages */
+
+.big-message-layer {
+  position: fixed;
+  top: 38%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  z-index: 40;
+  pointer-events: none;
+}
+
+.big-message {
+  background: rgba(6, 32, 22, 0.9);
+  border: 2px solid var(--accent);
+  border-radius: 16px;
+  padding: 16px 36px;
+  text-align: center;
+  animation: big-message-pop 2.2s ease forwards;
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.55);
+}
+
+.big-message-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--accent-strong);
+  white-space: nowrap;
+}
+
+.big-message-subtitle {
+  font-size: 14px;
+  color: var(--ink-dim);
+  margin-top: 4px;
+}
+
+.big-message-warning {
+  border-color: var(--danger);
+}
+
+.big-message-warning .big-message-title {
+  color: #ff9d95;
+}
+
+.big-message-success {
+  border-color: var(--success);
+}
+
+.big-message-success .big-message-title {
+  color: var(--success);
+}
+
+@keyframes big-message-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  10% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  18% {
+    transform: scale(1);
+  }
+  82% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
 }
 
 /* Round end */

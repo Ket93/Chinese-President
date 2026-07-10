@@ -11,6 +11,7 @@ import {
   type RoundState,
   type SeatRankTitle,
   type Suit,
+  type TrickEndReason,
   type ValidationFailureReason,
 } from '@chinese-president/shared';
 import { ExchangeEngine, type ExchangeActionResult } from './ExchangeEngine.js';
@@ -46,6 +47,8 @@ export class RoundEngine {
       finishedOrder: [],
       revolutionActive: false,
       openingPlayRequiresThreeClubs: this.roundNumber === 1 && !params.leaderIdOverride,
+      trickHistory: [],
+      lastTrickResolution: null,
     };
   }
 
@@ -71,16 +74,27 @@ export class RoundEngine {
     return this.hands.get(playerId) ?? [];
   }
 
+  /** Test-only: bypasses shuffling/dealing to set up an exact scenario, then starts trick-taking directly. */
+  startTrickTakingForTesting(hands: Record<string, Card[]>, leaderId: string): void {
+    for (const [id, cards] of Object.entries(hands)) this.hands.set(id, [...cards]);
+    this.startTrickTakingPhase(leaderId);
+  }
+
   getRankTitles(): Map<string, SeatRankTitle> {
     const order = this.state.finishedOrder;
     const n = order.length;
     const map = new Map<string, SeatRankTitle>();
+    // With fewer than 4 finishers there's no room for a distinct Vice
+    // President / Vice Asshole pair (the exchange phase needs all four
+    // titles to exist, and correctly skips itself when they don't — see
+    // tryBuildExchangeEngine). A 2-player round is just president/asshole; a
+    // 3-player round is president/citizen/asshole.
     order.forEach((id, i) => {
       let title: SeatRankTitle;
       if (i === 0) title = 'president';
-      else if (i === 1) title = 'vicePresident';
       else if (i === n - 1) title = 'asshole';
-      else if (i === n - 2) title = 'viceAsshole';
+      else if (n >= 4 && i === 1) title = 'vicePresident';
+      else if (n >= 4 && i === n - 2) title = 'viceAsshole';
       else title = 'citizen';
       map.set(id, title);
     });
@@ -180,11 +194,11 @@ export class RoundEngine {
     if (this.checkAndHandleRoundEnd()) return { ok: true };
 
     if (forcedWinner) {
-      this.resolveTrick(forcedWinner);
+      this.resolveTrick(forcedWinner, 'eightEndsRound');
     } else if (this.noRemainingPlayerCanBeat(playerId)) {
       // Nobody else holds a hand capable of beating this combo — end the
       // trick immediately instead of making everyone pass in turn.
-      this.resolveTrick(playerId);
+      this.resolveTrick(playerId, 'noOneCanBeat');
     } else {
       this.advanceOrResolve(playerId);
     }
@@ -275,7 +289,7 @@ export class RoundEngine {
     if (next) {
       this.state.trick.activePlayerId = next;
     } else {
-      this.resolveTrick(this.state.trick.leaderId!);
+      this.resolveTrick(this.state.trick.leaderId!, 'allPassed');
     }
   }
 
@@ -302,7 +316,12 @@ export class RoundEngine {
     throw new Error('No active player found — round should have already ended');
   }
 
-  private resolveTrick(winnerId: string): void {
+  private resolveTrick(winnerId: string, reason: TrickEndReason): void {
+    if (this.state.trick.log.length > 0) {
+      this.state.trickHistory = [this.state.trick.log, ...this.state.trickHistory];
+    }
+    this.state.lastTrickResolution = { winnerId, reason };
+
     const winnerHasCards = (this.hands.get(winnerId) ?? []).length > 0;
     const nextLeader = winnerHasCards ? winnerId : this.firstActivePlayerAfter(winnerId);
     this.state.trick = {

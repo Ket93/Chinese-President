@@ -1,5 +1,8 @@
 export type ThreeClubsTiebreak = 'random' | 'mostLowCards';
 
+export const MIN_PLAYERS = 2;
+export const MAX_PLAYERS = 8;
+
 export interface HouseRules {
   revolution: boolean;
   /** Wired end-to-end (config flag + pass-count tracking) but currently a no-op stub — see server/src/game/houseRules/noPassStreakBonus.ts */

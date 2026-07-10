@@ -1,5 +1,5 @@
 import type { Server, Socket } from 'socket.io';
-import type { GameConfig, Rank, Suit } from '@chinese-president/shared';
+import { MAX_PLAYERS, MIN_PLAYERS, type GameConfig, type Rank, type Suit } from '@chinese-president/shared';
 import { maybeScheduleBotTurn } from '../game/BotPlayer.js';
 import type { Room } from '../rooms/Room.js';
 import { RoomManager } from '../rooms/RoomManager.js';
@@ -57,7 +57,7 @@ export function registerSocketHandlers(io: Server, roomManager: RoomManager): vo
       const room = roomManager.getRoom(payload?.roomCode ?? '');
       if (!room) return socket.emit('room:error', { message: 'Room not found.' });
       if (room.phase !== 'lobby') return socket.emit('room:error', { message: 'That game has already started.' });
-      if (room.orderedPlayers().length >= 8) return socket.emit('room:error', { message: 'Room is full (8 players max).' });
+      if (room.orderedPlayers().length >= MAX_PLAYERS) return socket.emit('room:error', { message: `Room is full (${MAX_PLAYERS} players max).` });
 
       const { player, playerToken } = room.addPlayer(payload?.name?.trim() || 'Player', socket.id);
       sessionData(socket).roomCode = room.code;
@@ -92,7 +92,7 @@ export function registerSocketHandlers(io: Server, roomManager: RoomManager): vo
     socket.on('room:addBot', () => {
       const room = getRoom();
       if (!room || room.hostId !== requirePlayerId()) return;
-      if (room.orderedPlayers().length >= 8) return socket.emit('room:error', { message: 'Room is full (8 players max).' });
+      if (room.orderedPlayers().length >= MAX_PLAYERS) return socket.emit('room:error', { message: `Room is full (${MAX_PLAYERS} players max).` });
       room.addBot();
       broadcastRoomState(io, room);
     });
@@ -107,7 +107,7 @@ export function registerSocketHandlers(io: Server, roomManager: RoomManager): vo
     socket.on('room:startGame', () => {
       const room = getRoom();
       if (!room || room.hostId !== requirePlayerId()) return;
-      if (!room.canStart()) return socket.emit('room:error', { message: 'Need 4-8 players to start.' });
+      if (!room.canStart()) return socket.emit('room:error', { message: `Need ${MIN_PLAYERS}-${MAX_PLAYERS} players to start.` });
       room.startGame();
       afterMutation(io, room);
     });

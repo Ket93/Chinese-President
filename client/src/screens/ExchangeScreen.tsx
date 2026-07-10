@@ -20,10 +20,38 @@ export function ExchangeScreen() {
   const tx = exchange.transactions[exchange.currentIndex];
   if (!tx) return null;
 
-  const requesterName = players.find((p) => p.id === tx.requesterId)?.name ?? '?';
-  const targetName = players.find((p) => p.id === tx.targetId)?.name ?? '?';
+  function nameOf(id: string): string {
+    return players.find((p) => p.id === id)?.name ?? '?';
+  }
+
+  const requesterName = nameOf(tx.requesterId);
+  const targetName = nameOf(tx.targetId);
   const stepLabel =
     exchange.currentIndex === 0 ? "President's Request (1 of 2)" : exchange.currentIndex === 1 ? "President's Request (2 of 2)" : "Vice President's Request";
+
+  // The transaction just before this one already resolved (succeeded or was
+  // forfeited) — surface that outcome explicitly, since otherwise the flow
+  // just silently moves on and it's not obvious whether the request landed.
+  const previousTx = exchange.transactions[exchange.currentIndex - 1];
+  let previousOutcome: ReactNode = null;
+  if (previousTx) {
+    const rankLabel = previousTx.requestedSuit
+      ? `the ${previousTx.requestedRank} of ${previousTx.requestedSuit}`
+      : `a ${previousTx.requestedRank}`;
+    if (previousTx.status === 'forfeited') {
+      previousOutcome = (
+        <p className="exchange-outcome exchange-outcome-fail">
+          &#10060; {nameOf(previousTx.targetId)} didn&rsquo;t have {rankLabel} &mdash; that request came up empty.
+        </p>
+      );
+    } else if (previousTx.status === 'complete') {
+      previousOutcome = (
+        <p className="exchange-outcome exchange-outcome-success">
+          &#9989; {nameOf(previousTx.targetId)} had {rankLabel} and handed it over.
+        </p>
+      );
+    }
+  }
 
   function handleRankPick(rank: Rank) {
     if (isHighRank(rank)) {
@@ -64,14 +92,24 @@ export function ExchangeScreen() {
     body = <p className="exchange-waiting">{targetName} is choosing which card to hand over&hellip;</p>;
   } else if (tx.status === 'awaitingReturn' && tx.requesterId === playerId) {
     body = (
-      <CardChooserModal
-        title={`Choose a card to give back to ${targetName}`}
-        cards={you.hand}
-        onChoose={(cardId) => socket.emit('exchange:submitReturn', { cardId })}
-      />
+      <>
+        <p className="exchange-outcome exchange-outcome-success">&#9989; {targetName} had it and gave it over! Now give a card back.</p>
+        <CardChooserModal
+          title={`Choose a card to give back to ${targetName}`}
+          cards={you.hand}
+          onChoose={(cardId) => socket.emit('exchange:submitReturn', { cardId })}
+        />
+      </>
     );
   } else if (tx.status === 'awaitingReturn') {
-    body = <p className="exchange-waiting">{requesterName} is choosing a card to give back&hellip;</p>;
+    body = (
+      <>
+        {tx.targetId === playerId && (
+          <p className="exchange-outcome exchange-outcome-success">&#9989; You had it and handed it over to {requesterName}.</p>
+        )}
+        <p className="exchange-waiting">{requesterName} is choosing a card to give back&hellip;</p>
+      </>
+    );
   } else {
     body = <p className="exchange-waiting">Resolving&hellip;</p>;
   }
@@ -81,6 +119,7 @@ export function ExchangeScreen() {
       <div className="panel exchange-panel">
         <h2>Card Exchange</h2>
         <p className="exchange-step-label">{stepLabel}</p>
+        {previousOutcome}
         {body}
       </div>
     </div>
