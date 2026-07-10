@@ -3,6 +3,7 @@ import { isValidPlay, type ValidationFailureReason } from '@chinese-president/sh
 import { Hand } from '../components/card/Hand.js';
 import { BigMessageOverlay } from '../components/table/BigMessageOverlay.js';
 import { DeckPile } from '../components/table/DeckPile.js';
+import { PassBubbleOverlay } from '../components/table/PassBubbleOverlay.js';
 import { PlayAnimationOverlay } from '../components/table/PlayAnimationOverlay.js';
 import { PlayerSeat } from '../components/table/PlayerSeat.js';
 import { RankLegend } from '../components/table/RankLegend.js';
@@ -89,6 +90,7 @@ export function TableScreen() {
           players={players}
           seatPositions={seatPositions}
         />
+        <PassBubbleOverlay passedPlayerIds={round.trick.passedPlayerIds} players={players} seatPositions={seatPositions} />
       </div>
 
       <DeckPile trickCount={round.trickHistory.length} onClick={() => setShowHistory(true)} />

@@ -310,6 +310,47 @@
   }
 }
 
+.pass-bubble-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 22;
+}
+
+.pass-bubble {
+  position: absolute;
+  transform: translate(-50%, -140%);
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid var(--ink-dim);
+  color: var(--ink);
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  padding: 5px 12px;
+  border-radius: 8px;
+  white-space: nowrap;
+  animation: pass-bubble-pop 1600ms ease forwards;
+}
+
+@keyframes pass-bubble-pop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -120%) scale(0.8);
+  }
+  15% {
+    opacity: 1;
+    transform: translate(-50%, -150%) scale(1);
+  }
+  75% {
+    opacity: 1;
+    transform: translate(-50%, -150%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -170%) scale(0.95);
+  }
+}
+
 .rank-legend {
   position: fixed;
   right: 16px;

@@ -44,7 +44,15 @@ export function BigMessageOverlay({ round, players, myPlayerId }: BigMessageOver
 
     const leaderName = playerName(round.trick.leaderId);
     const leadsVerb = leaderName === 'You' ? 'lead' : 'leads';
-    if (resolution.reason === 'noOneCanBeat') {
+
+    if (resolution.winnerId !== round.trick.leaderId) {
+      // The trick's actual winner emptied their hand on that exact play, so
+      // they can't lead — leadership passed to the next active player
+      // instead. Called out explicitly since otherwise it looks like the
+      // wrong player is leading.
+      const winnerName = playerName(resolution.winnerId);
+      pushMessage(`${winnerName} won but is out of cards!`, `${leaderName} ${leadsVerb} next`, 'warning');
+    } else if (resolution.reason === 'noOneCanBeat') {
       pushMessage('No one could beat that!', `${leaderName} ${leadsVerb} again`, 'warning');
     } else if (resolution.reason === 'eightEndsRound') {
       pushMessage('8 ends the trick!', `${leaderName} ${leadsVerb} again`, 'warning');
