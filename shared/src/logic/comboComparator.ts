@@ -1,4 +1,4 @@
-import type { Rank } from '../types/card.js';
+import { SUIT_VALUE, type Rank } from '../types/card.js';
 import type { Combo } from '../types/combo.js';
 import { rankValue } from './rankOrder.js';
 import type { RuleContext } from './ruleContext.js';
@@ -17,6 +17,21 @@ export function definingRank(combo: Combo): Rank {
 }
 
 /**
+ * Suit tiebreak power for a combo, used only when two combos tie on rank
+ * (e.g. two singles of the same rank, or two pairs/bombs of the same rank).
+ * Takes the highest-suited card among those matching the combo's defining
+ * rank — for a run that's just the single high-rank card; for pair/
+ * fullHouse/bomb it's the best-suited card within that rank's group.
+ * Suit order (low to high) is fixed regardless of revolution: Clubs <
+ * Diamonds < Hearts < Spades.
+ */
+function suitPower(combo: Combo): number {
+  const rank = definingRank(combo);
+  const relevantSuits = combo.cards.filter((c) => c.rank === rank).map((c) => SUIT_VALUE[c.suit]);
+  return Math.max(...relevantSuits);
+}
+
+/**
  * Compares two combos that are already known to be comparable (bomb vs
  * anything, or same kind + same length). Returns >0 if `a` beats `b`, <0 if
  * `b` beats `a`. Callers must not invoke this for two non-bomb combos of
@@ -31,7 +46,8 @@ export function compareCombo(a: Combo, b: Combo, ctx: RuleContext): number {
   if (bIsBomb && !aIsBomb) return -1;
 
   if (aIsBomb && bIsBomb) {
-    return rankValue(a.rank, ctx.revolutionActive) - rankValue(b.rank, ctx.revolutionActive);
+    const rankDiff = rankValue(a.rank, ctx.revolutionActive) - rankValue(b.rank, ctx.revolutionActive);
+    return rankDiff !== 0 ? rankDiff : suitPower(a) - suitPower(b);
   }
 
   if (a.kind !== b.kind) {
@@ -41,5 +57,6 @@ export function compareCombo(a: Combo, b: Combo, ctx: RuleContext): number {
     throw new Error(`Cannot compare runs of different length: ${a.length} vs ${b.length}`);
   }
 
-  return rankValue(definingRank(a), ctx.revolutionActive) - rankValue(definingRank(b), ctx.revolutionActive);
+  const rankDiff = rankValue(definingRank(a), ctx.revolutionActive) - rankValue(definingRank(b), ctx.revolutionActive);
+  return rankDiff !== 0 ? rankDiff : suitPower(a) - suitPower(b);
 }

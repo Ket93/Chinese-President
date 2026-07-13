@@ -1,4 +1,4 @@
-import { RANKS } from '@chinese-president/shared';
+import { RANKS, SUITS } from '@chinese-president/shared';
 import { SUIT_COLOR_VAR, SUIT_SYMBOL } from '../card/suitGlyphs.js';
 
 export interface RankLegendProps {
@@ -14,13 +14,16 @@ export function RankLegend({ revolutionActive = false }: RankLegendProps) {
         Rank order (low&nbsp;&rarr;&nbsp;high){revolutionActive && <span className="rank-legend-revolution"> — REVERSED</span>}
       </div>
       <div className="rank-legend-ranks">{ranks.join(' < ')}</div>
+      <div className="rank-legend-title rank-legend-suit-title">Suit tiebreak (same rank only)</div>
       <div className="rank-legend-suits">
-        {(['clubs', 'diamonds', 'hearts', 'spades'] as const).map((suit) => (
-          <span key={suit} className="rank-legend-suit" style={{ color: SUIT_COLOR_VAR[suit] }}>
-            {SUIT_SYMBOL[suit]}
+        {SUITS.map((suit, i) => (
+          <span key={suit} className="rank-legend-suit-entry">
+            <span className="rank-legend-suit" style={{ color: SUIT_COLOR_VAR[suit] }}>
+              {SUIT_SYMBOL[suit]}
+            </span>
+            {i < SUITS.length - 1 && <span className="rank-legend-suit-lt">&lt;</span>}
           </span>
         ))}
-        <span className="rank-legend-note">suits don&rsquo;t affect rank</span>
       </div>
     </div>
   );

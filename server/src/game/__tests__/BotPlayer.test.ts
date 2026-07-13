@@ -33,7 +33,7 @@ describe('bot scheduling integration (real Room + real timers, driven through ma
         {
           [beeId]: [card('A', 'hearts')],
           [ceeId]: [card('3', 'diamonds')],
-          [aceId]: [card('2', 'spades'), card('3', 'clubs'), card('4', 'diamonds')],
+          [aceId]: [card('2', 'spades'), card('4', 'clubs'), card('5', 'diamonds')],
         },
         beeId,
       );
@@ -53,7 +53,7 @@ describe('bot scheduling integration (real Room + real timers, driven through ma
       expect(engine.state.trick.activePlayerId).toBe(aceId);
 
       drive(); // Ace's ONLY legal move is the 2♠ (forced)
-      expect(engine.getHand(aceId)).toHaveLength(2); // 3♣ and 4♦ remain
+      expect(engine.getHand(aceId)).toHaveLength(2); // 4♣ and 5♦ remain
 
       // Nobody can beat a lone 2 — the trick auto-resolves. Ace still holds
       // cards, so Ace — the bot who just played the highest card — must
@@ -63,15 +63,15 @@ describe('bot scheduling integration (real Room + real timers, driven through ma
       expect(engine.state.trick.activePlayerId).toBe(aceId);
 
       drive(); // scheduler must pick Ace to lead again, driven for real
-      // Ace's remaining cards (3♣, 4♦) both still beat Cee's lone 3♦ (same
-      // rank never beats), so this keeps auto-resolving to Ace every time —
-      // correct cascading behavior, not a bug. Ace should still be leading.
+      // Ace's remaining cards (4♣, 5♦) both outrank Cee's lone 3♦, so this
+      // keeps auto-resolving to Ace every time — correct cascading
+      // behavior, not a bug. Ace should still be leading.
       expect(engine.state.trick.leaderId).toBe(aceId);
       expect(engine.state.trick.activePlayerId).toBe(aceId);
-      expect(engine.getHand(aceId)).toHaveLength(1); // 3♣ just auto-won, 4♦ remains
+      expect(engine.getHand(aceId)).toHaveLength(1); // 4♣ just auto-won, 5♦ remains
       expect(onActed).toHaveBeenCalledTimes(4);
 
-      drive(); // Ace leads their last card, 4♦ — round should end (Cee is the only one left)
+      drive(); // Ace leads their last card, 5♦ — round should end (Cee is the only one left)
       expect(engine.state.phase).toBe('roundEnd');
       expect(engine.state.finishedOrder).toEqual([beeId, aceId, ceeId]);
     } finally {

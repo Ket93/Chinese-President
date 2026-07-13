@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { classifyCombo } from '../comboClassifier.js';
 import { isValidPlay } from '../comboValidator.js';
-import { cardsOfRank, ctx, runCards } from './testHelpers.js';
+import { card, cardsOfRank, ctx, runCards } from './testHelpers.js';
 
 describe('isValidPlay', () => {
   it('accepts any valid shape when leading (no table combo)', () => {
@@ -56,5 +56,13 @@ describe('isValidPlay', () => {
     const higher = isValidPlay(cardsOfRank('A', 4), table, ctx());
     expect(lower).toEqual({ ok: false, reason: 'DOES_NOT_BEAT_TABLE' });
     expect(higher.ok).toBe(true);
+  });
+
+  it('lets a higher-suit single of the SAME rank beat a lower-suit one', () => {
+    const table = classifyCombo([card('9', 'diamonds')], ctx())!;
+    const lowerSuit = isValidPlay([card('9', 'clubs')], table, ctx());
+    const higherSuit = isValidPlay([card('9', 'spades')], table, ctx());
+    expect(lowerSuit).toEqual({ ok: false, reason: 'DOES_NOT_BEAT_TABLE' });
+    expect(higherSuit.ok).toBe(true);
   });
 });

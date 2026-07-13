@@ -8,6 +8,9 @@ export const RANK_VALUE: Record<Rank, number> = Object.fromEntries(
 export const SUITS = ['clubs', 'diamonds', 'hearts', 'spades'] as const;
 export type Suit = (typeof SUITS)[number];
 
+/** Tiebreak ordering between cards of the same rank: Clubs < Diamonds < Hearts < Spades. */
+export const SUIT_VALUE: Record<Suit, number> = { clubs: 0, diamonds: 1, hearts: 2, spades: 3 };
+
 /** Disambiguates duplicate rank+suit cards when deckCount === 2. */
 export type DeckIndex = 0 | 1;
 

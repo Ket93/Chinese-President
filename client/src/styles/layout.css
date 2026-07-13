@@ -380,10 +380,20 @@
   word-break: break-word;
 }
 
+.rank-legend-suit-title {
+  margin-top: 4px;
+}
+
 .rank-legend-suits {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
+}
+
+.rank-legend-suit-entry {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .rank-legend-suit {
@@ -397,9 +407,9 @@
   justify-content: center;
 }
 
-.rank-legend-note {
-  margin-left: 4px;
-  font-style: italic;
+.rank-legend-suit-lt {
+  color: var(--ink-dim);
+  font-weight: 700;
 }
 
 .table-combo.empty {
